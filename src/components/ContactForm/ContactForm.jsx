@@ -1,6 +1,7 @@
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { Form, Field, Button } from './ContactForm.styled';
 
 import { Component } from 'react';
@@ -9,6 +10,17 @@ export class ContactForm extends Component {
   state = {
     name: '',
     number: '',
+  };
+
+  static propTypes = {
+    contacts: PropTypes.arrayOf(
+      PropTypes.exact({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        number: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    onSubmit: PropTypes.func.isRequired,
   };
 
   nameInputIdGenerate = nanoid();
@@ -22,14 +34,15 @@ export class ContactForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    const id = nanoid();
-    const { name, number } = this.state;
-    const { onSubmit } = this.props;
-    if (name === '' || number === '') {
-      Notify.failure('Name and number are required');
+    const { onSubmit, contacts } = this.props;
+    const { name } = this.state;
+    if (contacts.find(item => item.name.toLowerCase() === name.toLowerCase())) {
+      toast.error(`Contact ${name} is already exist`);
       return;
     }
-    onSubmit({ id, name, number });
+    const id = nanoid();
+    onSubmit({ ...this.state, id });
+    toast.success(`Contact ${name} has been added`);
     this.setState({
       name: '',
       number: '',
@@ -71,13 +84,13 @@ export class ContactForm extends Component {
   }
 }
 
-ContactForm.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.exact({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  onSubmit: PropTypes.func.isRequired,
-};
+// ContactForm.propTypes = {
+//   contacts: PropTypes.arrayOf(
+//     PropTypes.exact({
+//       id: PropTypes.string.isRequired,
+//       name: PropTypes.string.isRequired,
+//       number: PropTypes.string.isRequired,
+//     })
+//   ).isRequired,
+//   onSubmit: PropTypes.func.isRequired,
+// };

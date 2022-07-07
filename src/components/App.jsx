@@ -1,11 +1,10 @@
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Component } from 'react';
 import { Container, Title } from './App.styled';
 import { ContactForm } from './ContactForm';
 import { ContactList } from './ContactList';
 import { Filter } from './Filter';
-
-Notify.init({ clickToClose: true, position: 'center-top' });
 
 export class App extends Component {
   state = {
@@ -19,27 +18,16 @@ export class App extends Component {
   };
 
   contactCreate = contact => {
-    const { contacts } = this.state;
-    if (
-      contacts.find(
-        item => item.name.toLowerCase() === contact.name.toLowerCase()
-      )
-    ) {
-      Notify.failure('Contact already exists');
-      return;
-    }
     this.setState(prevState => ({
       contacts: [...prevState.contacts, contact],
     }));
-    Notify.success('Contact successfully added');
   };
 
   handleFilterChange = e => {
     this.setState({ filter: e.target.value });
   };
 
-  removeContact = e => {
-    const id = e.target.closest('li').id;
+  removeContact = id => {
     this.setState(prevState => ({
       contacts: prevState.contacts.filter(contact => contact.id !== id),
     }));
@@ -57,7 +45,14 @@ export class App extends Component {
       <Container>
         <Title>Phonebook</Title>
         <ContactForm onSubmit={this.contactCreate} contacts={contacts} />
-
+        <ToastContainer
+          position="top-left"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          rtl={false}
+          theme={'dark'}
+        />
         <Title>Contacts</Title>
         <Filter value={filter} onChange={this.handleFilterChange} />
         <ContactList data={filteredContacts} onClick={this.removeContact} />
